@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -88,6 +89,7 @@ fun Main(modifier: Modifier = Modifier) {
     ) {
         LazyColumnExample()
         ColumnExample()
+        TextFieldExample(modifier)
     }
 }
 
@@ -141,12 +143,12 @@ fun ColumnExample(modifier: Modifier = Modifier) {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        RowExample(modifier)
+        RowExample()
     }
 }
 
 @Composable
-fun RowExample(modifier: Modifier = Modifier) {
+fun RowExample() {
     Row {
         Image(
             painter = painterResource(id = R.drawable.android),
@@ -158,14 +160,38 @@ fun RowExample(modifier: Modifier = Modifier) {
                 .alpha(0.6f)
         )
 
-        // 兩張圖片中間的空白間距
         Spacer(modifier = Modifier.width(20.dp))
 
         Image(
-            // 將右側圖片改為 compose.png
             painter = painterResource(id = R.drawable.compose),
             contentDescription = "Compose icon",
             modifier = Modifier.size(100.dp)
+        )
+    }
+}
+
+@Composable
+fun TextFieldExample(modifier: Modifier = Modifier) {
+    // 管理輸入框的文字狀態
+    var inputText by remember { mutableStateOf("") }
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        OutlinedTextField(
+            value = inputText,
+            onValueChange = { inputText = it },
+            label = { Text("請輸入文字") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = if (inputText.isBlank()) "尚未輸入內容" else "您輸入的是：$inputText"
         )
     }
 }
