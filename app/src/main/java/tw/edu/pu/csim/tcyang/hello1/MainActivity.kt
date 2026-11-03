@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -91,12 +93,17 @@ fun MainScreen() {
 
 @Composable
 fun Main(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    // 使用 Column 取代 Box，並由上往下依序排列，徹底解決元件重疊問題
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0x8AE0BBE4))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ColumnExample()
-        TextFieldExample(modifier)
+        TextFieldExample()
     }
 }
 
@@ -105,16 +112,7 @@ fun ColumnExample(modifier: Modifier = Modifier) {
     var gestureState by remember { mutableStateOf("") }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0x8AE0BBE4))
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { gestureState = "短按" },
-                    onDoubleTap = { gestureState = "連按兩下" },
-                    onLongPress = { gestureState = "長按" }
-                )
-            },
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -128,7 +126,8 @@ fun ColumnExample(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         RowExample()
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+        // 放入「一隻動物一張卡片」的橫向滑動清單
         LazyRowExample()
     }
 }
@@ -173,20 +172,33 @@ fun LazyRowExample(modifier: Modifier = Modifier) {
 
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(16.dp), // 卡片之間的間距
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(animals) { animal ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = animal.imageRes),
-                    contentDescription = animal.name,
-                    modifier = Modifier.size(60.dp)
+            // 每一個項目就是一張獨立的卡片
+            Card(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(220.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFD0BCFF)
                 )
-                Text(text = animal.name)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = animal.imageRes),
+                        contentDescription = animal.name,
+                        modifier = Modifier.size(120.dp) // 放大動物圖片
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = animal.name)
+                }
             }
         }
     }
@@ -197,7 +209,7 @@ fun TextFieldExample(modifier: Modifier = Modifier) {
     var inputText by remember { mutableStateOf("") }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
