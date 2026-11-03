@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -96,33 +95,8 @@ fun Main(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        LazyColumnExample()
         ColumnExample()
         TextFieldExample(modifier)
-    }
-}
-
-@Composable
-fun LazyColumnExample() {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Add a single item
-        item {
-            Text(text = "Header")
-        }
-
-        // Add 50 items
-        items(50) { index ->
-            Text(text = "$index")
-        }
-
-        // Add another single item
-        item {
-            Text(text = "Footer")
-        }
     }
 }
 
