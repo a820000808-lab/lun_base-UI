@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -93,7 +94,8 @@ fun MainScreen() {
 
 @Composable
 fun Main(modifier: Modifier = Modifier) {
-    // 使用 Column 取代 Box，並由上往下依序排列，徹底解決元件重疊問題
+    var selectedAnimal by remember { mutableStateOf("尚未選擇動物") }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -102,13 +104,22 @@ fun Main(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ColumnExample()
+        ColumnExample(
+            selectedAnimal = selectedAnimal,
+            onAnimalSelected = { index, animalName ->
+                selectedAnimal = "您點選的是：第 $index 隻動物 - $animalName"
+            }
+        )
         TextFieldExample()
     }
 }
 
 @Composable
-fun ColumnExample(modifier: Modifier = Modifier) {
+fun ColumnExample(
+    selectedAnimal: String,
+    onAnimalSelected: (Int, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var gestureState by remember { mutableStateOf("") }
 
     Column(
@@ -127,8 +138,10 @@ fun ColumnExample(modifier: Modifier = Modifier) {
         RowExample()
 
         Spacer(modifier = Modifier.height(16.dp))
-        // 放入「一隻動物一張卡片」的橫向滑動清單
-        LazyRowExample()
+        LazyRowExample(onAnimalSelected = onAnimalSelected)
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(text = selectedAnimal)
     }
 }
 
@@ -156,7 +169,10 @@ fun RowExample() {
 }
 
 @Composable
-fun LazyRowExample(modifier: Modifier = Modifier) {
+fun LazyRowExample(
+    onAnimalSelected: (Int, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val animals = listOf(
         Animal("鴨子", R.drawable.animal0),
         Animal("企鵝", R.drawable.animal1),
@@ -172,32 +188,47 @@ fun LazyRowExample(modifier: Modifier = Modifier) {
 
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp), // 卡片之間的間距
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items(animals) { animal ->
-            // 每一個項目就是一張獨立的卡片
+        // 使用 itemsIndexed 來取得每個項目的索引值 (index 從 0 開始)
+        itemsIndexed(animals) { index, animal ->
+            val displayIndex = index + 1 // 將編號從 1 開始計算 (1, 2, 3, 4, 5...)
+
             Card(
                 modifier = Modifier
-                    .width(180.dp)
-                    .height(220.dp),
+                    .width(300.dp)
+                    .height(180.dp)
+                    .clickable {
+                        onAnimalSelected(displayIndex, animal.name)
+                    },
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFD0BCFF)
                 )
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Image(
                         painter = painterResource(id = animal.imageRes),
                         contentDescription = animal.name,
-                        modifier = Modifier.size(120.dp) // 放大動物圖片
+                        modifier = Modifier.size(100.dp)
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = animal.name)
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column(
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        // 顯示編號
+                        Text(text = "編號：$displayIndex")
+                        Spacer(modifier = Modifier.height(4.dp))
+                        // 顯示動物名稱
+                        Text(text = animal.name)
+                    }
                 }
             }
         }
